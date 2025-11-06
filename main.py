@@ -1,5 +1,7 @@
-import Item
 
+from Item import Item
+from HighEndElectronic import HighEndElectronic
+from BrandedClothing import BrandedClothing
 
 def display_menu():
     print("\n--- GadgetGrove Inventory System ---")
@@ -20,28 +22,48 @@ def main():
         display_menu()
         choice = input("Please enter your choice (1-7): ")
 
-        # ... (Choices 1, 2, 3 remain the same) ...
         if choice == '1':
             try:
+                print("\n--- Add a New Item ---")
+                print("1. Standard Item")
+                print("2. High-End Electronic (with Warranty)")
+                print("3. Branded Clothing (with Size/Color)")
+                item_type = input("What type of item would you like to add? (1-3): ")
+
+                if item_type not in ['1', '2', '3']:
+                    print("\nERROR: Invalid item type.")
+                    continue
+
                 item_id = int(input("Enter new item ID: "))
                 if item_id in inventory:
                     print("\nERROR: An item with this ID already exists.")
                     continue
+
                 name = input("Enter item name: ")
-                while True:
-                    price = float(input("Enter item price: "))
-                    if price >= 0: break
-                    print("ERROR: Price cannot be negative.")
-                while True:
-                    quantity = int(input("Enter item quantity: "))
-                    if quantity >= 0: break
-                    print("ERROR: Quantity cannot be negative.")
-                new_item = Item.Item(item_id, name, price, quantity)
+                price = float(input("Enter item price: "))
+                quantity = int(input("Enter item quantity: "))
+
+                new_item = None
+                if item_type == '1':
+                    new_item = Item(item_id, name, price, quantity)
+                elif item_type == '2':
+                    warranty = int(input("Enter warranty period (in months): "))
+                    new_item = HighEndElectronic(item_id, name, price, quantity, warranty)
+                elif item_type == '3':
+                    size = input("Enter item size (e.g., S, M, L, XL): ")
+                    color = input("Enter item color: ")
+                    new_item = BrandedClothing(item_id, name, price, quantity, size, color)
+
                 inventory[item_id] = new_item
                 print(f"\nSUCCESS: '{name}' has been added to the inventory.")
+
             except ValueError:
-                print("\nERROR: Invalid input.")
-        elif choice == '2':
+                print("\nERROR: Invalid input. Please enter the correct data types.")
+
+        # --- OTHER CHOICES (NO CHANGES NEEDED!) ---
+
+        elif choice == '2':  # Change Name
+            # This works for any item type because they all inherit 'update_name'
             try:
                 item_id = int(input("Enter the ID of the item to update: "))
                 if item_id not in inventory:
@@ -51,41 +73,33 @@ def main():
                     inventory[item_id].update_name(new_name)
             except ValueError:
                 print("\nERROR: Please enter a valid number for the item ID.")
-        elif choice == '3':
+
+        elif choice == '3':  # Change Price
+            # This works for any item type because they all inherit 'update_price'
             try:
                 item_id = int(input("Enter the ID of the item to update: "))
                 if item_id not in inventory:
                     print("\nERROR: Item ID not found.")
                 else:
-                    while True:
-                        new_price = float(input("Enter the new price: "))
-                        if new_price >= 0: break
-                        print("ERROR: Price cannot be negative.")
+                    new_price = float(input("Enter the new price: "))
                     inventory[item_id].update_price(new_price)
             except ValueError:
-                print("\nERROR: Please enter a valid number for the ID or price.")
+                print("\nERROR: Please enter a valid number.")
 
-        # --- CHOICE 4: Restock Item (CORRECTED WITH VALIDATION) ---
-        elif choice == '4':
+        elif choice == '4':  # Restock
+            # This works for any item type because they all inherit 'restock'
             try:
                 item_id = int(input("Enter the ID of the item to restock: "))
                 if item_id in inventory:
-                    # Input validation is now handled here, in the main loop.
-                    while True:
-                        quantity_to_add = int(
-                            input(f"Enter the quantity to ADD to stock for '{inventory[item_id].name}': "))
-                        if quantity_to_add > 0:
-                            break
-                        print("ERROR: Please enter a positive number to add.")
-
+                    quantity_to_add = int(input(f"Enter quantity to ADD for '{inventory[item_id].name}': "))
                     inventory[item_id].restock(quantity_to_add)
                 else:
                     print("\nERROR: Item with that ID not found.")
             except ValueError:
                 print("\nERROR: Please enter a valid number.")
 
-        # ... (Choices 5, 6, 7 remain the same) ...
-        elif choice == '5':
+        elif choice == '5':  # Find Item
+            # This works for any item type
             query = input("Enter the ID or Name of the item to find: ")
             found_item = None
             try:
@@ -99,18 +113,22 @@ def main():
                         break
             if found_item:
                 print("\n--- Item Found ---")
-                print(found_item)
+                print(found_item)  # Polymorphism in action!
                 print("--------------------")
             else:
                 print("\nERROR: Item not found.")
-        elif choice == '6':
+
+        elif choice == '6':  # Print Summary
             print("\n--- Current Inventory ---")
             if not inventory:
                 print("The inventory is currently empty.")
             else:
                 for item in inventory.values():
+                    # POLYMORPHISM: Python automatically calls the correct __str__
+                    # for each object, whether it's an Item, Electronic, or Clothing.
                     print(item)
             print("-------------------------")
+
         elif choice == '7':
             print("\nExiting the GadgetGrove Inventory System. Goodbye!")
             break
