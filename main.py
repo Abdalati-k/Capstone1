@@ -26,8 +26,8 @@ def main():
             try:
                 print("\n--- Add a New Item ---")
                 print("1. Standard Item")
-                print("2. High-End Electronic (with Warranty)")
-                print("3. Branded Clothing (with Size/Color)")
+                print("2. High-End Electronic")
+                print("3. Branded Clothing ")
                 item_type = input("What type of item would you like to add? (1-3): ")
 
                 if item_type not in ['1', '2', '3']:
@@ -40,8 +40,30 @@ def main():
                     continue
 
                 name = input("Enter item name: ")
-                price = float(input("Enter item price: "))
-                quantity = int(input("Enter item quantity: "))
+
+
+                while True:
+                    try:
+                        price_str = input("Enter item price: ")
+                        price = float(price_str)
+                        if price >= 0:
+                            break
+                        else:
+                            print("ERROR: Price cannot be negative. Please try again.")
+                    except ValueError:
+                        print("ERROR: Invalid input. Please enter a valid number for the price.")
+
+                while True:
+                    try:
+                        quantity_str = input("Enter item quantity: ")
+                        quantity = int(quantity_str)
+                        if quantity >= 0:
+                            break
+                        else:
+                            print("ERROR: Quantity cannot be negative. Please try again.")
+                    except ValueError:
+                        print("ERROR: Invalid input. Please enter a valid whole number for the quantity.")
+
 
                 new_item = None
                 if item_type == '1':
@@ -60,10 +82,8 @@ def main():
             except ValueError:
                 print("\nERROR: Invalid input. Please enter the correct data types.")
 
-        # --- OTHER CHOICES (NO CHANGES NEEDED!) ---
 
-        elif choice == '2':  # Change Name
-            # This works for any item type because they all inherit 'update_name'
+        elif choice == '2':
             try:
                 item_id = int(input("Enter the ID of the item to update: "))
                 if item_id not in inventory:
@@ -74,32 +94,36 @@ def main():
             except ValueError:
                 print("\nERROR: Please enter a valid number for the item ID.")
 
-        elif choice == '3':  # Change Price
-            # This works for any item type because they all inherit 'update_price'
+        elif choice == '3':
             try:
                 item_id = int(input("Enter the ID of the item to update: "))
                 if item_id not in inventory:
                     print("\nERROR: Item ID not found.")
                 else:
                     new_price = float(input("Enter the new price: "))
-                    inventory[item_id].update_price(new_price)
+                    if new_price >= 0:
+                        inventory[item_id].update_price(new_price)
+                    else:
+                        print("\nERROR: Price cannot be negative.")
             except ValueError:
                 print("\nERROR: Please enter a valid number.")
 
-        elif choice == '4':  # Restock
-            # This works for any item type because they all inherit 'restock'
+        elif choice == '4':
             try:
                 item_id = int(input("Enter the ID of the item to restock: "))
                 if item_id in inventory:
+                    # And you could add validation for restock quantity here
                     quantity_to_add = int(input(f"Enter quantity to ADD for '{inventory[item_id].name}': "))
-                    inventory[item_id].restock(quantity_to_add)
+                    if quantity_to_add >= 0:
+                         inventory[item_id].restock(quantity_to_add)
+                    else:
+                        print("\nERROR: Quantity to add cannot be negative.")
                 else:
                     print("\nERROR: Item with that ID not found.")
             except ValueError:
                 print("\nERROR: Please enter a valid number.")
 
-        elif choice == '5':  # Find Item
-            # This works for any item type
+        elif choice == '5':
             query = input("Enter the ID or Name of the item to find: ")
             found_item = None
             try:
@@ -113,19 +137,17 @@ def main():
                         break
             if found_item:
                 print("\n--- Item Found ---")
-                print(found_item)  # Polymorphism in action!
+                print(found_item)
                 print("--------------------")
             else:
                 print("\nERROR: Item not found.")
 
-        elif choice == '6':  # Print Summary
+        elif choice == '6':
             print("\n--- Current Inventory ---")
             if not inventory:
                 print("The inventory is currently empty.")
             else:
                 for item in inventory.values():
-                    # POLYMORPHISM: Python automatically calls the correct __str__
-                    # for each object, whether it's an Item, Electronic, or Clothing.
                     print(item)
             print("-------------------------")
 
